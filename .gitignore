@@ -1,0 +1,3 @@
+mobik_devops_takehome/
+# ignore .env files
+*.*env
