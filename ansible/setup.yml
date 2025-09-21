@@ -78,6 +78,14 @@
         pre_reboot_delay: 0
         post_reboot_delay: 30
 
+    - name: Start Minikube with none driver and adjusted memory
+      become: true
+      become_user: vagrant
+      shell: |
+        CHANGE_MINIKUBE_NONE_USER=true minikube start --driver=none --memory=2800mb
+      args:
+        creates: /home/vagrant/.minikube
+
 
 
 
