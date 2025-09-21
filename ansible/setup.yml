@@ -10,6 +10,7 @@
           - gnupg 
           - lsb-release 
           - conntrack
+          - iptables
         state: present
         update_cache: yes
 
@@ -42,7 +43,7 @@
         rm -f crictl-$VERSION-linux-amd64.tar.gz
       args:
         creates: /usr/local/bin/crictl
-    
+
     - name: Install cri-dockerd v0.3.20
       shell: |
         wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.20/cri-dockerd_0.3.20.3-0.debian-bookworm_amd64.deb
@@ -50,14 +51,14 @@
         rm cri-dockerd_0.3.20.3-0.debian-bookworm_amd64.deb
       args:
         creates: /usr/bin/cri-dockerd
-  
+
     - name: Install CNI plugins
       shell: |
         mkdir -p /opt/cni/bin
         curl -L https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz | tar -C /opt/cni/bin -xz
       args:
         creates: /opt/cni/bin/bridge
-    
+
     - name: Add vagrant user to docker group
       user:
         name: vagrant
@@ -70,22 +71,25 @@
         state: directory
         mode: '0755'
 
-    - name: Reboot VM to apply group changes
-      reboot:
-        msg: "Rebooting to apply Docker group membership"
-        connect_timeout: 5
-        reboot_timeout: 600
-        pre_reboot_delay: 0
-        post_reboot_delay: 30
-
     - name: Start Minikube with none driver and adjusted memory
       become: true
       become_user: vagrant
+      environment:
+        PATH: "/usr/sbin:/usr/bin:/bin:/usr/local/bin"
       shell: |
         CHANGE_MINIKUBE_NONE_USER=true minikube start --driver=none --memory=2800mb
       args:
-        creates: /home/vagrant/.minikube
+        creates: /home/vagrant/.minikube/config/config.json
 
 
+    - name: Verify Minikube status
+      become: true
+      become_user: vagrant
+      shell: |
+        CHANGE_MINIKUBE_NONE_USER=true minikube status
+      register: minikube_status
+      changed_when: false
 
-
+    - name: Show Minikube status
+      debug:
+        var: minikube_status.stdout_lines
