@@ -1,0 +1,83 @@
+- hosts: k8s
+  become: yes
+  tasks:
+    - name: Install dependencies
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+          - ca-certificates
+          - gnupg 
+          - lsb-release 
+          - conntrack
+        state: present
+        update_cache: yes
+
+    - name: Install Docker
+      shell: |
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Install Minikube
+      shell: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+        dpkg -i minikube_latest_amd64.deb
+      args:
+        creates: /usr/bin/minikube
+
+    - name: Install kubectl
+      shell: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      args:
+        creates: /usr/local/bin/kubectl
+
+    - name: Install crictl
+      shell: |
+        VERSION="v1.34.0"
+        wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
+        tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+        rm -f crictl-$VERSION-linux-amd64.tar.gz
+      args:
+        creates: /usr/local/bin/crictl
+    
+    - name: Install cri-dockerd v0.3.20
+      shell: |
+        wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.20/cri-dockerd_0.3.20.3-0.debian-bookworm_amd64.deb
+        dpkg -i cri-dockerd_0.3.20.3-0.debian-bookworm_amd64.deb
+        rm cri-dockerd_0.3.20.3-0.debian-bookworm_amd64.deb
+      args:
+        creates: /usr/bin/cri-dockerd
+  
+    - name: Install CNI plugins
+      shell: |
+        mkdir -p /opt/cni/bin
+        curl -L https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz | tar -C /opt/cni/bin -xz
+      args:
+        creates: /opt/cni/bin/bridge
+    
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    - name: Create CNI config directory
+      file:
+        path: /etc/cni/net.d
+        state: directory
+        mode: '0755'
+
+    - name: Reboot VM to apply group changes
+      reboot:
+        msg: "Rebooting to apply Docker group membership"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+
+
+
+
