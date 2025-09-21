@@ -71,22 +71,17 @@
         state: directory
         mode: '0755'
 
-    - name: Start Minikube with none driver and adjusted memory
+    - name: Start Minikube with none driver (with extended PATH)
       become: true
-      become_user: vagrant
-      environment:
-        PATH: "/usr/sbin:/usr/bin:/bin:/usr/local/bin"
       shell: |
-        CHANGE_MINIKUBE_NONE_USER=true minikube start --driver=none --memory=2800mb
+        su - vagrant -c 'export PATH=$PATH:/usr/sbin && CHANGE_MINIKUBE_NONE_USER=true minikube start --driver=none'
       args:
         creates: /home/vagrant/.minikube/config/config.json
 
-
     - name: Verify Minikube status
       become: true
-      become_user: vagrant
       shell: |
-        CHANGE_MINIKUBE_NONE_USER=true minikube status
+        su - vagrant -c 'export PATH=$PATH:/usr/sbin && CHANGE_MINIKUBE_NONE_USER=true minikube status'
       register: minikube_status
       changed_when: false
 
