@@ -126,3 +126,47 @@ To automate cluster startup, the following task was added:
   ensuring system binaries like `iptables` were accessible to the `vagrant` user.
 - Added a verification step to confirm the setup was successful.
 
+### Containerization and Kubernetes Manifests
+
+#### Backend
+
+- Developed a Go-based backend API that connects to a PostgreSQL database.
+- Implemented environment variable-based configuration for database connection details.
+- Added endpoints:
+  - `/api/hello`: Verifies database connectivity and responds with a message.
+  - `/health`: Provides a health check endpoint for readiness and liveness probes.
+- Ensured proper error handling for database connectivity.
+
+#### Kubernetes Manifests
+
+- Created manifests for deploying the backend, database, and frontend in a Kubernetes cluster.
+
+**Backend Deployment:**
+
+- Configured environment variables for database connection.
+- Added readiness and liveness probes for health monitoring.
+- Defined resource requests and limits for efficient resource usage.
+
+**Database Deployment:**
+
+- Used PostgreSQL with environment variables for configuration.
+- Added readiness probes to ensure database availability.
+- Defined resource requests and limits.
+
+**Frontend Deployment:**
+
+- Configured environment variables for backend URL.
+- Added readiness and liveness probes.
+- Defined resource requests and limits.
+
+**Services:**
+
+- Exposed each component (backend, database, frontend) with appropriate Kubernetes Services.
+
+#### Frontend
+
+- Developed a simple web application that serves a static HTML page.
+- Implemented a script to fetch data from the backend API (`/api/hello`).
+- Handled both successful responses and errors in the script.
+- Containerized the application using an Nginx-based Docker image.
+- Exposed the application on port 80 for external access.
