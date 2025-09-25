@@ -8,6 +8,28 @@ machine (VM) and deploy a containerized application with a backend, frontend, an
 database. This README outlines the steps taken, challenges encountered, and
 solutions implemented.
 
+## Setup Instructions
+
+To set up the project, follow these steps:
+
+1. Open a terminal in the project directory.
+
+2. Run the following command to create and start the VM:
+
+  ```bash
+  vagrant up
+  ```
+
+3. Once the VM is running, provision it with Ansible by executing:
+
+  ```bash
+  vagrant provision
+  ```
+
+4. Access the application by opening your browser and navigating to [http://192.168.56.10](http://192.168.56.10:30080).
+
+After these steps, the VM will be configured and the application will be available at the specified address.
+
 ### Part One Contributions
 
 In the first part of the project, I contributed to the Linux server administration tasks, which are documented in detail in the `answers/takehome_part_1.md` file. This file contains:
