@@ -13,7 +13,9 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./app", "/home/vagrant/project"
 
   # Sync kubernetes directory to VM
+  config.vm.synced_folder "./app", "/home/vagrant/project"
   config.vm.synced_folder "./kubernetes", "/home/vagrant/project/kubernetes"
+  config.vm.synced_folder "./ansible", "/home/vagrant/project/ansible"
 
   # Provision with setup.yml
   config.vm.provision "ansible_local" do |ansible|
