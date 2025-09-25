@@ -1,54 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db
+  name: backend
   namespace: kubeapp
   labels:
-    app: db
-    tier: database
-    role: primary
+    app: backend
+    tier: logic
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db
+      app: backend
   template:
     metadata:
       labels:
-        app: db
-        tier: database
-        role: primary
+        app: backend
+        tier: logic
     spec:
       containers:
-        - name: db
-          image: postgres:15-alpine
-          env:
-            - name: POSTGRES_DB
-              value: "exampledb"
-            - name: POSTGRES_USER
-              value: "postgres"
-            - name: POSTGRES_PASSWORD
-              value: "example"
-          ports:
-            - containerPort: 5432
-          readinessProbe:
-            exec:
-              command:
-                - pg_isready
-                - -U
-                - postgres
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "250m"
-            limits:
-              memory: "256Mi"
-              cpu: "500m"
         - name: backend
           image: backend:latest
           imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: "db"
+            - name: DB_PORT
+              value: "5432"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             requests:
               memory: "128Mi"
@@ -60,14 +45,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: db
+  name: backend
   namespace: kubeapp
   labels:
-    app: db
-    tier: database
+    app: backend
+    tier: logic
 spec:
   selector:
-    app: db
+    app: backend
   ports:
-    - port: 5432
-      targetPort: 5432
+    - port: 8080
+      targetPort: 8080

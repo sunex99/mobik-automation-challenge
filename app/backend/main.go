@@ -3,8 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
@@ -20,6 +22,7 @@ func getenv(key, fallback string) string {
 }
 
 func init() {
+	log.Println("Initializing database connection...")
 	// Retrieve database connection details from environment variables with fallbacks.
 	dbHost := getenv("DB_HOST", "db")
 	dbPort := getenv("DB_PORT", "5432")
@@ -32,11 +35,17 @@ func init() {
 		dbHost, dbPort, dbUser, dbPass, dbName)
 
 	var err error
-	// Open a connection to the PostgreSQL database.
-	db, err = sql.Open("postgres", connStr)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to connect to database: %v", err))
+	// Retry database connection up to 5 times with a delay.
+	for i := 0; i < 5; i++ {
+		db, err = sql.Open("postgres", connStr)
+		if err == nil && db.Ping() == nil {
+			log.Println("Database connection established.")
+			return
+		}
+		log.Printf("Failed to connect to database (attempt %d): %v", i+1, err)
+		time.Sleep(5 * time.Second)
 	}
+	log.Fatalf("Failed to connect to database after 5 attempts: %v", err)
 }
 
 // healthCheckHandler responds with a 200 OK status for health checks.
@@ -63,6 +72,9 @@ func main() {
 	})
 	http.HandleFunc("/health", healthCheckHandler)
 
-	// Start the HTTP server on port 5000.
-	http.ListenAndServe(":5000", nil)
+	// Start the HTTP server on port 8080.
+	log.Println("Starting server on port 8080...")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
