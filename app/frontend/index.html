@@ -1,26 +1,28 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Three-Tier App - Frontend</title>
-  </head>
-  <body>
-    <h1>Frontend</h1>
-    <p>This page is served by Nginx inside a container.</p>
-    <p>Trying to reach the backend API...</p>
-    <script>
-      fetch('/api/hello')
-        .then(r => r.text())
-        .then(txt => {
-          const p = document.createElement('p');
-          p.textContent = "Backend says: " + txt;
-          document.body.appendChild(p);
-        })
-        .catch(err => {
-          const p = document.createElement('p');
-          p.textContent = "Error contacting backend: " + err;
-          document.body.appendChild(p);
-        });
-    </script>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Page</title>
+    <style>
+        .assignment-banner {
+            background-color: #f0f8ff;
+            color: #333;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="assignment-banner">
+        <p>Welcome! This page is part of an assignment for educational purposes.</p>
+    </div>
+
+    <!-- Your existing content -->
+    <h1>My Assignment Page</h1>
+    <p>This is where the content of the assignment goes.</p>
+</body>
 </html>

@@ -58,7 +58,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// Check if the database connection is alive.
 	if err := db.Ping(); err != nil {
-		http.Error(w, fmt.Sprintf("Database error: %v", err), http.StatusInternalServerError)
+		http.Error(w, "Database connection error", http.StatusInternalServerError)
 		return
 	}
 	fmt.Fprintln(w, "Hello from Go backend (DB OK)")
