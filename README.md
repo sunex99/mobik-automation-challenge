@@ -170,3 +170,80 @@ To automate cluster startup, the following task was added:
 - Handled both successful responses and errors in the script.
 - Containerized the application using an Nginx-based Docker image.
 - Exposed the application on port 80 for external access.
+
+## Additional Steps Taken
+
+### Debugging and Fixes (Technical Details)
+
+1. **Resolving Missing Kubernetes Manifests**:
+   - **Issue**: The `db-deployment.yml` file was not synced to the VM, causing the `deploy-app.yml` playbook to fail when applying the database deployment.
+   - **Solution**: Updated the `Vagrantfile` to include the following synced folder configuration:
+
+     ```ruby
+     config.vm.synced_folder "./kubernetes", "/home/vagrant/project/kubernetes"
+     ```
+
+   - **Verification**: SSHed into the VM and confirmed the presence of the file using:
+
+     ```bash
+     ls /home/vagrant/project/kubernetes/db-deployment.yml
+     ```
+
+2. **File Synchronization**:
+   - **Issue**: The `deploy-app.yml` playbook and Kubernetes manifests were not available in the VM, leading to deployment errors.
+   - **Solution**: Ensured the `ansible` and `kubernetes` directories were synced by adding the following to the `Vagrantfile`:
+
+     ```ruby
+     config.vm.synced_folder "./ansible", "/home/vagrant/project/ansible"
+     ```
+
+   - **Verification**: Reprovisioned the VM using:
+
+     ```bash
+     vagrant reload && vagrant provision
+     ```
+
+     Then verified the files in the VM.
+
+3. **Reprovisioning and Deployment**:
+   - **Issue**: The `deploy-app.yml` playbook failed due to missing files and namespace issues.
+   - **Solution**: Updated the playbook to dynamically create the `kubeapp` namespace if it didn’t exist:
+
+     ```yaml
+     - name: Create kubeapp namespace
+       shell: |
+         kubectl get namespace kubeapp || kubectl create namespace kubeapp
+     ```
+
+   - **Verification**: Re-ran the playbook and confirmed successful deployment of all Kubernetes manifests.
+
+4. **Application Verification**:
+   - **Backend**:
+     - Tested the `/health` endpoint:
+
+       ```bash
+       kubectl exec -it backend-5bdc9b5f84-gbvzt -n kubeapp -- curl http://localhost:8080/health
+       ```
+
+       Expected output: `OK`
+     - Tested the `/api/hello` endpoint:
+
+       ```bash
+       kubectl exec -it backend-5bdc9b5f84-gbvzt -n kubeapp -- curl http://localhost:8080/api/hello
+       ```
+
+       Expected output: `Hello from Go backend (DB OK)`
+   - **Frontend**:
+     - Verified the `frontend` service was exposed via NodePort:
+
+       ```bash
+       kubectl get svc frontend -n kubeapp
+       ```
+
+       Accessed the frontend in a browser using the VM’s IP and NodePort.
+
+5. **Final Adjustments**:
+   - **Namespace Creation**: Added robust checks to ensure the `kubeapp` namespace exists before applying manifests.
+   - **Idempotency**: Ensured all tasks in the `deploy-app.yml` playbook are idempotent to allow safe re-execution.
+
+
