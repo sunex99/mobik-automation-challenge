@@ -74,7 +74,7 @@
     - name: Start Minikube with none driver (with extended PATH)
       become: true
       shell: |
-        su - vagrant -c 'export PATH=$PATH:/usr/sbin && CHANGE_MINIKUBE_NONE_USER=true minikube start --driver=none'
+        su - vagrant -c 'export PATH=$PATH:/usr/sbin && export PATH=$PATH:/sbin && CHANGE_MINIKUBE_NONE_USER=true minikube start --driver=none'
       args:
         creates: /home/vagrant/.minikube/config/config.json
 
@@ -88,3 +88,13 @@
     - name: Show Minikube status
       debug:
         var: minikube_status.stdout_lines
+
+    - name: Verify iptables installation
+      command: iptables --version
+      register: iptables_check
+      failed_when: iptables_check.rc != 0
+      changed_when: false
+
+    - name: Debug iptables installation
+      debug:
+        var: iptables_check.stdout
