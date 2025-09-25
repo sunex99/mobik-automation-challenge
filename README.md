@@ -8,6 +8,16 @@ machine (VM) and deploy a containerized application with a backend, frontend, an
 database. This README outlines the steps taken, challenges encountered, and
 solutions implemented.
 
+### Part One Contributions
+
+In the first part of the project, I contributed to the Linux server administration tasks, which are documented in detail in the `answers/takehome_part_1.md` file. This file contains:
+
+- Solutions to the Linux server administration challenges.
+- Step-by-step explanations of the tasks performed.
+- Insights and troubleshooting steps taken during the process.
+
+These contributions laid the groundwork for the automated provisioning and deployment processes described in the subsequent sections.
+
 ## Setting up the Local DevOps Environment
 
 I separated infrastructure (Vagrantfile) from configuration (ansible/), which is
@@ -52,6 +62,10 @@ argument to prevent redundant execution.
 
 - Used `ansible_local` provisioning so Ansible runs inside the VM.
 - Defined an inventory file (`ansible/hosts.ini`) to target the VM locally.
+
+
+
+These contributions were integral to automating the provisioning process and ensuring a robust and repeatable setup.
 
 ### Provisioning the VM
 
