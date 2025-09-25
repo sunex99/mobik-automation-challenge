@@ -22,6 +22,7 @@ spec:
       containers:
         - name: frontend
           image: frontend:latest
+          imagePullPolicy: Never
           env:
             - name: BACKEND_URL
               value: "http://backend"

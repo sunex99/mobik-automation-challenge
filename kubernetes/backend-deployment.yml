@@ -46,6 +46,16 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
+        - name: backend
+          image: backend:latest
+          imagePullPolicy: Never
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
 ---
 apiVersion: v1
 kind: Service

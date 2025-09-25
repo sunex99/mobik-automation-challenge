@@ -9,6 +9,7 @@
     - name: Build frontend Docker image
       command: docker build -t frontend:latest /home/vagrant/project/frontend
 
+    # Create kubeapp namespace
     - name: Create kubeapp namespace
       shell: |
         kubectl get namespace kubeapp || kubectl create namespace kubeapp
